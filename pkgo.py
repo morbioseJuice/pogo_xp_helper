@@ -102,6 +102,17 @@ class utils:
     def wait_for_enter():
         input("\nPress Enter to continue…")
 
+    def yes_no_input(prompt):
+        while True:
+            user_input = input(prompt)
+
+            if user_input == "yes":
+                return True
+            elif user_input == "no":
+                return False
+            else:
+                continue
+
     @staticmethod
     # Special input function to guarantee that a input can be int()ed
     def int_input(prompt, min=None, max=None):
@@ -237,6 +248,25 @@ class log:
 
         return kept_entries
 
+    @staticmethod
+    def get_recent_entry_for_each_p2():
+        entries = json_utils.read_entries()
+
+        recent_entries = []
+        found_names = []
+
+        for entry in reversed(entries):
+            if entry["p2"] not in found_names:
+                recent_entries.append(entry)
+                found_names.append(entry["p2"])
+
+        return recent_entries
+
+    def get_p1_recent_xp():
+        entries = json_utils.read_entries()
+
+        return entries[-1]["p1_xp"]
+
     ##########
     # Below are various ways to print the log
     ##########
@@ -335,6 +365,27 @@ class log:
                 difference_total += difference[0]
             print(f"{difference_total} - f{log.beautify_date(difference[3])}")
 
+    def print_current_rankings():
+        recent_entries = log.get_recent_entry_for_each_p2()
+
+        recent_entries.append({"p1": "Me", "p2": "Me", "difference": 0, "leading": "Me", "date": "null", "p1_xp": log.get_p1_recent_xp(), "p2_xp": log.get_p1_recent_xp()})
+
+        sorted_entries = sorted(recent_entries, key=lambda x: x["p2_xp"], reverse=True)
+
+        snapshot = ""
+
+        for i, entry in enumerate(sorted_entries):
+            snapshot = snapshot + "\n" + f"{i + 1}: {entry["p2"]} | {entry["p2_xp"]} XP | {entry["p2_xp"] - log.get_p1_recent_xp():,}"
+        
+        utils.clear_console()
+        print(snapshot)
+
+        should_save_snapshot = utils.yes_no_input("\nWould you like to save a snapshot of these results? (yes/no) : ")
+
+        if should_save_snapshot == True:
+            print("\nSnapshot saved to snapshots.jsonl\n")
+            json_utils.dump_entry({"snapshot": snapshot, "date": str(datetime.now())}, os.path.join(dir, "snapshots.jsonl"))
+
 # Prints log options and asks which one to run, then runs it from the log class
 def xp_log():
     print("Log Options: ")
@@ -345,6 +396,8 @@ def xp_log():
     print("5. Print log with dates")
     print("6. Print log with dates (clean)")
     print("7. Print with specific p2")
+    print("8. Print all differences with specific p2")
+    print("9. Print current rankings")
 
     opt = utils.int_input("Choose an option: ", 1)
 
@@ -365,6 +418,10 @@ def xp_log():
             log.print_with_dates_clean()
         case 7:
             log.print_with_specific_p2()
+        case 8:
+            log.print_differences_with_specific_p2()
+        case 9:
+            log.print_current_rankings()
 
 # Program loop, repeatedly asks which function to run until program is quit with last option
 while True:
