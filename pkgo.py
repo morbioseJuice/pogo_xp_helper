@@ -184,6 +184,14 @@ class xp_utils:
         print("")
 
     @staticmethod
+    def get_xp_to_certain_level(target_level):
+        current_xp = xp_utils.get_trainer_total("trainer")
+
+        target_xp = xp_utils.total_through_level(target_level)
+
+        return target_xp - current_xp
+
+    @staticmethod
     # Enter two total xp values and saves them to a json with other information such as name and date. Used in case 2 and 3.
     def print_and_store_difference(trainer_1, trainer_2, wants_data_dumped = True):
         trainer_one_total = xp_utils.get_trainer_total(trainer_1)
@@ -430,10 +438,11 @@ while True:
     print("2. XP difference between me and other person (saved to JSONL)")
     print("3. ACTUAL XP difference between two trainer")
     print("4. Get XP log")
-    print("5. Quit")
+    print("5. Get XP to certain level")
+    print("6. Quit")
     print("")
 
-    opt = utils.int_input("Choose an option: ", 1, 4)
+    opt = utils.int_input("Choose an option: ", 1, 6)
 
     match opt:
         case 1:  # Total XP of single trainer
@@ -455,6 +464,11 @@ while True:
             xp_log()
 
         case 5:
+            print(
+                xp_utils.get_xp_to_certain_level(utils.int_input("What is your target level?", 1, 80))
+            )
+
+        case 6:
             print("cya")
             exit()
 
