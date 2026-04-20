@@ -275,6 +275,19 @@ class log:
 
         return entries[-1]["p1_xp"]
 
+    def get_all_p1_xps():
+        entries = json_utils.read_entries()
+
+        found_dates = ["03-27"] # I have 3-27 marked as already found because it doesn't include an accurate xp value
+        all_p1_xps = []
+
+        for entry in entries:
+            if entry["date"][5:10] not in found_dates:
+                found_dates.append(entry["date"][5:10])
+                all_p1_xps.append([entry["p1_xp"], entry["date"][5:10]])
+
+        return all_p1_xps
+
     ##########
     # Below are various ways to print the log
     ##########
@@ -394,6 +407,19 @@ class log:
             print("\nSnapshot saved to snapshots.jsonl\n")
             json_utils.dump_entry({"snapshot": snapshot, "date": str(datetime.now())}, os.path.join(dir, "snapshots.jsonl"))
 
+    @staticmethod
+    def print_all_p1_xps():
+        entries = log.get_all_p1_xps()
+
+        prev_entry = [entries[0][0]]
+
+        utils.clear_console()
+        for entry in entries:
+            print(f"{entry[1]}: {format(entry[0], ",")} (\033[92m+{round((entry[0] - prev_entry[0]) / 1000000, 1)}m\033[0m)")
+
+            prev_entry = entry
+        utils.wait_for_enter()
+
 # Prints log options and asks which one to run, then runs it from the log class
 def xp_log():
     print("Log Options: ")
@@ -406,6 +432,7 @@ def xp_log():
     print("7. Print with specific p2")
     print("8. Print all differences with specific p2")
     print("9. Print current rankings")
+    print("10. Print full history for only p1")
 
     opt = utils.int_input("Choose an option: ", 1)
 
@@ -430,6 +457,8 @@ def xp_log():
             log.print_differences_with_specific_p2()
         case 9:
             log.print_current_rankings()
+        case 10:
+            log.print_all_p1_xps()
 
 # Program loop, repeatedly asks which function to run until program is quit with last option
 while True:
