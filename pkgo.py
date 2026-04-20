@@ -465,7 +465,7 @@ while True:
 
         case 5:
             print(
-                xp_utils.get_xp_to_certain_level(utils.int_input("What is your target level?", 1, 80))
+                str(format(xp_utils.get_xp_to_certain_level(utils.int_input("What is your target level?", 1, 80)), ","))
             )
 
         case 6:
